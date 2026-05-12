@@ -12,6 +12,8 @@ def webhook():
 
     data = request.json
 
+    print("收到Webhook:", data)
+    
     symbol = data.get("symbol")
     timeframe = data.get("timeframe")
     rsi = float(data.get("rsi"))
