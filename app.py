@@ -4,52 +4,36 @@ import os
 
 app = Flask(__name__)
 
-BOT_TOKEN = os.environ['BOT_TOKEN']
-CHAT_ID = os.environ['CHAT_ID']
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+CHAT_ID = os.environ["CHAT_ID"]
 
-@app.route('/webhook', methods=['POST'])
+def call_phone(msg):
+    url = "https://api.callmebot.com/telegram/call.php"
+    requests.get(url, params={
+        "user": "@你的Telegram用户名",
+        "text": msg
+    })
+
+@app.route("/webhook", methods=["POST"])
 def webhook():
 
-    data = request.json
+    data = request.data.decode()
 
-    print("收到Webhook:", data)
-    
-    symbol = data.get("symbol")
-    timeframe = data.get("timeframe")
-    rsi = float(data.get("rsi"))
-    price = data.get("price")
+    print("收到信号:", data)
 
-    # ===== 策略过滤 =====
-    if True:
+    # 只要有信号就触发（不解析RSI）
+    message = "📉 RSI触发超卖信号"
 
-        message = (
-            f"⚠ A级机会警报\n\n"
-            f"币种: {symbol}\n"
-            f"周期: {timeframe}\n"
-            f"RSI: {rsi}\n"
-            f"价格: {price}"
-        )
+    # 1. Telegram
+    requests.post(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+        data={
+            "chat_id": CHAT_ID,
+            "text": message
+        }
+    )
 
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    # 2. 电话
+    call_phone("RSI超卖，请查看行情")
 
-        requests.post(
-            url,
-            data={
-                "chat_id": CHAT_ID,
-                "text": message
-            }
-        )
-
-        print("TG状态码:", response.status_code)
-        print("TG返回内容:", response.text)
-
-        return "alert sent"
-
-    return "ignored"
-
-@app.route('/')
-def home():
-    return "running"
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    return "ok"
