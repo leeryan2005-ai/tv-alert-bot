@@ -20,7 +20,7 @@ def webhook():
     price = data.get("price")
 
     # ===== 策略过滤 =====
-    if rsi < 30:
+    if if True:
 
         message = (
             f"⚠ A级机会警报\n\n"
