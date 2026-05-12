@@ -38,6 +38,9 @@ def webhook():
             }
         )
 
+        print("TG状态码:", response.status_code)
+        print("TG返回内容:", response.text)
+
         return "alert sent"
 
     return "ignored"
